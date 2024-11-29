@@ -18,7 +18,7 @@ std::vector<int> shishkarev_a_sum_of_vector_elements_mpi::getRandomVector(int ve
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::pre_processing() {
   internal_order_test();
-  
+
   // Копируем входные данные в локальный вектор
   int* input_ptr = reinterpret_cast<int*>(taskData->inputs[0]);
   input_vector.assign(input_ptr, input_ptr + taskData->inputs_count[0]);
@@ -30,14 +30,14 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::pre_proces
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::validation() {
   internal_order_test();
-  
+
   // Убедимся, что выходной буфер имеет правильный размер
   return taskData->outputs_count[0] == 1;
 }
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::run() {
   internal_order_test();
-  
+
   // Подсчитываем сумму элементов вектора
   result = std::accumulate(input_vector.cbegin(), input_vector.cend(), 0);
   return true;
@@ -45,7 +45,7 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::run() {
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::post_processing() {
   internal_order_test();
-  
+
   // Передаем результат в выходной буфер
   *reinterpret_cast<int*>(taskData->outputs[0]) = result;
   return true;
@@ -73,7 +73,7 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::pre_processi
   // Определяем размер локального вектора для текущего процесса
   unsigned int local_size = delta;
   if (mpi_comm.rank() == mpi_comm.size() - 1) {
-    local_size += remainder; // Для последнего процесса добавляем остаток
+    local_size += remainder;  // Для последнего процесса добавляем остаток
   }
   local_vector.resize(local_size);
 
@@ -91,25 +91,25 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::pre_processi
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::validation() {
   internal_order_test();
-  
+
   // Процесс 0 проверяет размер выходного буфера
   return mpi_comm.rank() != 0 || taskData->outputs_count[0] == 1;
 }
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::run() {
   internal_order_test();
-  
+
   // Вычисляем локальную сумму
   int local_result = std::accumulate(local_vector.cbegin(), local_vector.cend(), 0);
 
   // Суммируем результаты всех процессов
-  boost::mpi::reduce(mpi_comm, local_result, result, std::plus<>(), 0); // Используем прозрачный функтор
+  boost::mpi::reduce(mpi_comm, local_result, result, std::plus<>(), 0);  // Используем прозрачный функтор
   return true;
 }
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::post_processing() {
   internal_order_test();
-  
+
   // Процесс 0 записывает результат в выходной буфер
   if (mpi_comm.rank() == 0) {
     *reinterpret_cast<int*>(taskData->outputs[0]) = result;
