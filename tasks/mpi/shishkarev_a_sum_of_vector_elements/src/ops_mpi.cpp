@@ -77,11 +77,10 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::pre_processi
   }
   local_vector.resize(local_size);
 
+  // Копируем данные в локальный вектор в зависимости от процесса
   if (mpi_comm.rank() == 0) {
-    // Копируем свою часть данных в локальный вектор
     std::copy(input_vector.begin(), input_vector.begin() + delta, local_vector.begin());
   } else {
-    // Получаем свою часть данных от процесса 0
     mpi_comm.recv(0, 0, local_vector.data(), local_size);
   }
 
@@ -102,8 +101,8 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::run() {
   // Вычисляем локальную сумму
   int local_result = std::accumulate(local_vector.cbegin(), local_vector.cend(), 0);
 
-  // Суммируем результаты всех процессов
-  boost::mpi::reduce(mpi_comm, local_result, result, std::plus<>(), 0);  // Используем прозрачный функтор
+  // Суммируем результаты всех процессов с использованием reduce
+  boost::mpi::reduce(mpi_comm, local_result, result, std::plus<int>(), 0);  // Используем явный функтор std::plus<int>()
   return true;
 }
 
