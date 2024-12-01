@@ -3,8 +3,8 @@
 
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
+#include <numeric>  // Для std::accumulate
 #include <vector>
-#include <numeric> // Для std::accumulate
 
 #include "mpi/shishkarev_a_sum_of_vector_elements/include/ops_mpi.hpp"
 
