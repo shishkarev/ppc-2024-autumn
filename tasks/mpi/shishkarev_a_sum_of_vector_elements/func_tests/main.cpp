@@ -4,6 +4,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
 #include <vector>
+#include <numeric> // Для std::accumulate
 
 #include "mpi/shishkarev_a_sum_of_vector_elements/include/ops_mpi.hpp"
 
@@ -33,7 +34,7 @@ TEST(shishkarev_a_sum_of_vector_elements_mpi, test_empty_sum) {
 
 TEST(shishkarev_a_sum_of_vector_elements_mpi, test_single_element_sum) {
   boost::mpi::communicator world;
-  std::vector<int> global_vec(1, 42);  // Вектор из одного элемента
+  std::vector<int> global_vec(1, 42);
   std::vector<int32_t> global_sum(1, 0);
 
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
@@ -84,7 +85,7 @@ TEST(shishkarev_a_sum_of_vector_elements_mpi, test_large_vector_sum) {
 
 TEST(shishkarev_a_sum_of_vector_elements_mpi, test_zero_vector_sum) {
   boost::mpi::communicator world;
-  std::vector<int> global_vec(100, 0);  // Вектор из 100 нулей
+  std::vector<int> global_vec(100, 0);
   std::vector<int32_t> global_sum(1, 0);
 
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
