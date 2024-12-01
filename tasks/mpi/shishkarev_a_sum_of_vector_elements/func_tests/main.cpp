@@ -9,17 +9,17 @@
 #include "mpi/shishkarev_a_sum_of_vector_elements/include/ops_mpi.hpp"
 
 TEST(shishkarev_a_sum_of_vector_elements_mpi, test_empty_sum) {
+  boost::mpi::environment env;
   boost::mpi::communicator world;
+
   std::vector<int> global_vec;  // Пустой вектор
   std::vector<int32_t> global_sum(1, 0);
 
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    if (!global_vec.empty()) {
-      taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    } else {
-      taskDataPar->inputs.emplace_back(nullptr);  // Указываем, что данных нет
-    }
+    // Создаем фиктивные данные для пустого вектора
+    int placeholder = 0;
+    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(&placeholder));
     taskDataPar->inputs_count.emplace_back(global_vec.size());
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_sum.data()));
     taskDataPar->outputs_count.emplace_back(global_sum.size());
@@ -37,7 +37,9 @@ TEST(shishkarev_a_sum_of_vector_elements_mpi, test_empty_sum) {
 }
 
 TEST(shishkarev_a_sum_of_vector_elements_mpi, test_single_element_sum) {
+  boost::mpi::environment env;
   boost::mpi::communicator world;
+
   std::vector<int> global_vec(1, 42);
   std::vector<int32_t> global_sum(1, 0);
 
@@ -61,7 +63,9 @@ TEST(shishkarev_a_sum_of_vector_elements_mpi, test_single_element_sum) {
 }
 
 TEST(shishkarev_a_sum_of_vector_elements_mpi, test_large_vector_sum) {
+  boost::mpi::environment env;
   boost::mpi::communicator world;
+
   std::vector<int> global_vec;
   std::vector<int32_t> global_sum(1, 0);
 
@@ -88,7 +92,9 @@ TEST(shishkarev_a_sum_of_vector_elements_mpi, test_large_vector_sum) {
 }
 
 TEST(shishkarev_a_sum_of_vector_elements_mpi, test_zero_vector_sum) {
+  boost::mpi::environment env;
   boost::mpi::communicator world;
+
   std::vector<int> global_vec(100, 0);
   std::vector<int32_t> global_sum(1, 0);
 
