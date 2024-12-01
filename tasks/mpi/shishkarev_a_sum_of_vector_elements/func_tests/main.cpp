@@ -36,7 +36,6 @@
   }
 }*/
 
-
 TEST(shishkarev_a_sum_of_vector_elements_mpi, test_single_element_sum) {
   boost::mpi::environment env;
   boost::mpi::communicator world;
