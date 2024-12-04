@@ -11,13 +11,11 @@
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::pre_processing() {
   internal_order_test();
 
-  internal_order_test();
-
   // Скопировать входные данные в локальный вектор
-  input_vec_ = std::vector<int>(taskData->inputs_count[0]);
-  auto* tmp_ptr = reinterpret_cast<int*>(taskData->inputs[0]);
+  input_vector = std::vector<int>(taskData->inputs_count[0]);
+  int* input_ptr = reinterpret_cast<int*>(taskData->inputs[0]);
   for (unsigned i = 0; i < taskData->inputs_count[0]; i++) {
-    input_vec_[i] = tmp_ptr[i];
+    input_vector[i] = input_ptr[i];
   }
 
   // Инициализация результата
@@ -70,23 +68,23 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::pre_processi
   // Определяем размер подзадач
   unsigned int vector_send_size = n / world_size;
   unsigned int local_size = n % world_size;
-  std::vector<int> counts(world_size, vector_send_size);
+  std::vector<int> send_counts(world_size, vector_send_size);
   std::vector<int> disp(world_size, 0);
 
   for (unsigned int i = 0; i < static_cast<unsigned int>(world_size); ++i) {
-    if (i < static_cast<unsigned int>(overflow_size)) {
+    if (i < static_cast<unsigned int>(local_size)) {
       ++send_counts[i];
     }
     if (i > 0) {
-      displs[i] = displs[i - 1] + send_counts[i - 1];
+      disp[i] = disp[i - 1] + send_counts[i - 1];
     }
   }
 
-  auto loc_vec_size = static_cast<unsigned int>(send_counts[myid]);
-  local_input_.resize(loc_vec_size);
+  auto local_vector_size = static_cast<unsigned int>(send_counts[world_id]);
+  local_input.resize(local_vector_size);
 
   // Разделяем данные на процессы
-  boost::mpi::scatterv(world, input_vec_.data(), send_counts, displs, local_input_.data(), loc_vec_size, 0);
+  boost::mpi::scatterv(world, input_vector.data(), send_counts, disp, local_input.data(), local_vector_size, 0);
 
   local_sum = 0;
   result = 0;
@@ -105,7 +103,7 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::run() {
   internal_order_test();
 
   // Считаем локальную сумму
-  local_sum = std::accumulate(local_input_.begin(), local_input_.end(), 0);
+  local_sum = std::accumulate(local_input.begin(), local_input.end(), 0);
 
   // Суммируем результаты всех процессов
   boost::mpi::reduce(world, local_sum, result, std::plus<>(), 0);
