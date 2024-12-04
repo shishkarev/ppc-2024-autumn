@@ -8,20 +8,17 @@
 #include <string>
 #include <vector>
 
-std::vector<int> shishkarev_a_sum_of_vector_elements_mpi::getRandomVector(int vector_size) {
-  std::mt19937 generator(std::random_device{}());
-  std::uniform_int_distribution<int> distribution(0, 99);
-  std::vector<int> random_vector(vector_size);
-  std::generate(random_vector.begin(), random_vector.end(), [&]() { return distribution(generator); });
-  return random_vector;
-}
-
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::pre_processing() {
   internal_order_test();
 
-  // Копируем входные данные в локальный вектор
-  int* input_ptr = reinterpret_cast<int*>(taskData->inputs[0]);
-  input_vector.assign(input_ptr, input_ptr + taskData->inputs_count[0]);
+  internal_order_test();
+
+  // Скопировать входные данные в локальный вектор
+  input_vec_ = std::vector<int>(taskData->inputs_count[0]);
+  auto* tmp_ptr = reinterpret_cast<int*>(taskData->inputs[0]);
+  for (unsigned i = 0; i < taskData->inputs_count[0]; i++) {
+    input_vec_[i] = tmp_ptr[i];
+  }
 
   // Инициализация результата
   result = 0;
