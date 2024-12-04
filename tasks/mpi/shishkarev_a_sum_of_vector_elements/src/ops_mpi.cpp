@@ -8,6 +8,14 @@
 #include <string>
 #include <vector>
 
+std::vector<int> shishkarev_a_sum_of_vector_elements_mpi::getRandomVector(int vector_size) {
+  std::mt19937 generator(std::random_device{}());
+  std::uniform_int_distribution<int> distribution(0, 99);
+  std::vector<int> random_vector(vector_size);
+  std::generate(random_vector.begin(), random_vector.end(), [&]() { return distribution(generator); });
+  return random_vector;
+}
+
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumSequential::pre_processing() {
   internal_order_test();
 
