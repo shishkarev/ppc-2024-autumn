@@ -41,9 +41,9 @@ class MPIVectorSumParallel : public ppc::core::Task {
 
  private:
   std::vector<int> input_vector, local_vector;
-  int result{}, local_sum{};
+  int result{}, local_sum;
   std::string operation;
-  boost::mpi::communicator mpi_comm;
+  boost::mpi::communicator world;
 };
 
 }  // namespace shishkarev_a_sum_of_vector_elements_mpi
