@@ -8,7 +8,7 @@
 
 #include "mpi/shishkarev_a_sum_of_vector_elements/include/ops_mpi.hpp"
 
-/*TEST(shishkarev_a_sum_of_vector_elements_mpi, test_empty_sum) {
+TEST(shishkarev_a_sum_of_vector_elements_mpi, test_empty_sum) {
   boost::mpi::environment env;
   boost::mpi::communicator world;
 
@@ -34,7 +34,7 @@
   if (world.rank() == 0) {
     ASSERT_EQ(global_sum[0], 0);  // Проверяем, что результат равен 0
   }
-}*/
+}
 
 TEST(shishkarev_a_sum_of_vector_elements_mpi, test_single_element_sum) {
   boost::mpi::environment env;

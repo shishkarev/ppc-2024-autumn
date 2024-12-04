@@ -55,63 +55,72 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::pre_processi
   internal_order_test();
 
   // Определяем размер данных для разделения
-  unsigned int delta = taskData->inputs_count[0] / mpi_comm.size();
-  unsigned int remainder = taskData->inputs_count[0] % mpi_comm.size();
+  int world_id = world.rank();
+  int world_size = world.size();
+  unsigned int n = 0;
 
-  if (mpi_comm.rank() == 0) {
-    // Инициализируем входной вектор из данных задачи
+  if (world_id == 0) {
+    // Инициализируем вводные данные
+    n = taskData->inputs_count[0];
+    input_vector = std::vector<int>(n);
     int* input_ptr = reinterpret_cast<int*>(taskData->inputs[0]);
-    input_vector.assign(input_ptr, input_ptr + taskData->inputs_count[0]);
+    memcpy(input_vector.data(), input_ptr, sizeof(int) * n);
+  }
 
-    // Рассылаем части вектора другим процессам
-    for (int proc = 1; proc < mpi_comm.size(); proc++) {
-      unsigned int send_size = (proc == mpi_comm.size() - 1) ? delta + remainder : delta;
-      mpi_comm.send(proc, 0, input_vector.data() + proc * delta, send_size);
+  // распространяем размеры данных
+  boost::mpi::broadcast(world, n, 0);
+
+  // Определяем размер подзадач
+  unsigned int vector_send_size = n / world_size;
+  unsigned int local_size = n % world_size;
+  std::vector<int> counts(world_size, vector_send_size);
+  std::vector<int> disp(world_size, 0);
+
+  for (unsigned int i = 0; i < static_cast<unsigned int>(world_size); ++i) {
+    if (i < static_cast<unsigned int>(overflow_size)) {
+      ++send_counts[i];
+    }
+    if (i > 0) {
+      displs[i] = displs[i - 1] + send_counts[i - 1];
     }
   }
 
-  // Определяем размер локального вектора для текущего процесса
-  unsigned int local_size = delta;
-  if (mpi_comm.rank() == mpi_comm.size() - 1) {
-    local_size += remainder;  // Для последнего процесса добавляем остаток
-  }
-  local_vector.resize(local_size);
+  auto loc_vec_size = static_cast<unsigned int>(send_counts[myid]);
+  local_input_.resize(loc_vec_size);
 
-  // Копируем данные в локальный вектор в зависимости от процесса
-  if (mpi_comm.rank() == 0) {
-    std::copy(input_vector.begin(), input_vector.begin() + delta, local_vector.begin());
-  } else {
-    mpi_comm.recv(0, 0, local_vector.data(), local_size);
-  }
+  // Разделяем данные на процессы
+  boost::mpi::scatterv(world, input_vec_.data(), send_counts, displs, local_input_.data(), loc_vec_size, 0);
 
+  local_sum = 0;
   result = 0;
   return true;
 }
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::validation() {
   internal_order_test();
-
-  // Процесс 0 проверяет размер выходного буфера
-  return mpi_comm.rank() != 0 || taskData->outputs_count[0] == 1;
+  if (world.rank() == 0) {
+    return taskData->outputs_count[0] == 1;
+  }
+  return
 }
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::run() {
   internal_order_test();
 
-  // Вычисляем локальную сумму
-  int local_result = std::accumulate(local_vector.cbegin(), local_vector.cend(), 0);
+  // Считаем локальную сумму
+  local_sum = std::accumulate(local_input_.begin(), local_input_.end(), 0);
 
-  // Суммируем результаты всех процессов с использованием reduce
-  boost::mpi::reduce(mpi_comm, local_result, result, std::plus<int>(), 0);  // Используем явный функтор std::plus<int>()
+  // Суммируем результаты всех процессов
+  boost::mpi::reduce(world, local_sum, result, std::plus<>(), 0);
   return true;
 }
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::post_processing() {
   internal_order_test();
 
-  // Процесс 0 записывает результат в выходной буфер
-  if (mpi_comm.rank() == 0) {
+  if (world.rank() == 0) {
     *reinterpret_cast<int*>(taskData->outputs[0]) = result;
   }
+
   return true;
 }
