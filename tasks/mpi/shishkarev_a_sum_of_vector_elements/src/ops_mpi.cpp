@@ -96,7 +96,7 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::validation()
   if (world.rank() == 0) {
     return taskData->outputs_count[0] == 1;
   }
-  return;
+  return true;
 }
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::run() {
