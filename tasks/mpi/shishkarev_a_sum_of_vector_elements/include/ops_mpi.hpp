@@ -41,7 +41,7 @@ class MPIVectorSumParallel : public ppc::core::Task {
 
  private:
   std::vector<int> input_vector, local_vector;
-  int result{};
+  int result{}, local_sum{};
   std::string operation;
   boost::mpi::communicator mpi_comm;
 };

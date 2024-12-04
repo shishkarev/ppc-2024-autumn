@@ -81,10 +81,10 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::pre_processi
   }
 
   auto local_vector_size = static_cast<unsigned int>(send_counts[world_id]);
-  local_input.resize(local_vector_size);
+  local_vector.resize(local_vector_size);
 
   // Разделяем данные на процессы
-  boost::mpi::scatterv(world, input_vector.data(), send_counts, disp, local_input.data(), local_vector_size, 0);
+  boost::mpi::scatterv(world, input_vector.data(), send_counts, disp, local_vector.data(), local_vector_size, 0);
 
   local_sum = 0;
   result = 0;
@@ -103,7 +103,7 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::run() {
   internal_order_test();
 
   // Считаем локальную сумму
-  local_sum = std::accumulate(local_input.begin(), local_input.end(), 0);
+  local_sum = std::accumulate(local_vector.begin(), local_vector.end(), 0);
 
   // Суммируем результаты всех процессов
   boost::mpi::reduce(world, local_sum, result, std::plus<>(), 0);
