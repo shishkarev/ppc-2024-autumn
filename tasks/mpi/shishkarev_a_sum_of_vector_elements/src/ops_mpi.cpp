@@ -72,7 +72,7 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::pre_processi
   std::vector<int> disp(world_size, 0);
 
   for (unsigned int i = 0; i < static_cast<unsigned int>(world_size); ++i) {
-    if (i < static_cast<unsigned int>(local_size)) {
+    if (i < local_size) {
       ++send_counts[i];
     }
     if (i > 0) {
@@ -96,7 +96,7 @@ bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::validation()
   if (world.rank() == 0) {
     return taskData->outputs_count[0] == 1;
   }
-  return
+  return;
 }
 
 bool shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel::run() {
