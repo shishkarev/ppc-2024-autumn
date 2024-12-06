@@ -121,7 +121,7 @@ TEST(shishkarev_a_sum_of_vector_elements_mpi, test_negative_vector_sum) {
   boost::mpi::environment env;
   boost::mpi::communicator world;
 
-  std::vector<int> global_vec(100, -1); // Вектор с отрицательными числами
+  std::vector<int> global_vec(100, -1);  // Вектор с отрицательными числами
   std::vector<int32_t> global_sum(1, 0);
 
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
