@@ -116,3 +116,30 @@ TEST(shishkarev_a_sum_of_vector_elements_mpi, test_zero_vector_sum) {
     ASSERT_EQ(global_sum[0], 0);
   }
 }
+
+TEST(shishkarev_a_sum_of_vector_elements_mpi, test_negative_vector_sum) {
+  boost::mpi::environment env;
+  boost::mpi::communicator world;
+
+  std::vector<int> global_vec(100, -1); // Вектор с отрицательными числами
+  std::vector<int32_t> global_sum(1, 0);
+
+  std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
+    taskDataPar->inputs_count.emplace_back(global_vec.size());
+    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_sum.data()));
+    taskDataPar->outputs_count.emplace_back(global_sum.size());
+  }
+
+  shishkarev_a_sum_of_vector_elements_mpi::MPIVectorSumParallel parallel(taskDataPar);
+  ASSERT_TRUE(parallel.validation());
+  parallel.pre_processing();
+  parallel.run();
+  parallel.post_processing();
+
+  if (world.rank() == 0) {
+    int expected_sum = std::accumulate(global_vec.begin(), global_vec.end(), 0);  // Сумма: -100
+    ASSERT_EQ(global_sum[0], expected_sum);
+  }
+}
