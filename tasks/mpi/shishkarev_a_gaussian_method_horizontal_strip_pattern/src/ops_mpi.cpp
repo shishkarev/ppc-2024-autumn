@@ -5,17 +5,18 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
+#include <boost/mpi.hpp>
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential::pre_processing() {
   internal_order_test();
 
   // Извлечение входных данных
   std::vector<double> input_matrix(taskData->inputs_count[0]);
-  double* matrix_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
+  auto* matrix_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
   std::copy(matrix_ptr, matrix_ptr + input_matrix.size(), input_matrix.begin());
 
   std::vector<double> input_vector_b(taskData->inputs_count[1]);
-  double* vector_b_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
+  auto* vector_b_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
   std::copy(vector_b_ptr, vector_b_ptr + input_vector_b.size(), input_vector_b.begin());
 
   int rows = *reinterpret_cast<int*>(taskData->inputs[2]);
@@ -62,7 +63,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential::post_processing() {
   internal_order_test();
-  double* output_ptr = reinterpret_cast<double*>(taskData->outputs[0]);
+  auto* output_ptr = reinterpret_cast<double*>(taskData->outputs[0]);
   std::copy(result.begin(), result.end(), output_ptr);
   return true;
 }
@@ -73,11 +74,11 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
   if (world.rank() == 0) {
     // Инициализация входных данных
     std::vector<double> input_matrix(taskData->inputs_count[0]);
-    double* matrix_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
+    auto* matrix_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
     std::copy(matrix_ptr, matrix_ptr + input_matrix.size(), input_matrix.begin());
 
     std::vector<double> input_vector_b(taskData->inputs_count[1]);
-    double* vector_b_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
+    auto* vector_b_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
     std::copy(vector_b_ptr, vector_b_ptr + input_vector_b.size(), input_vector_b.begin());
 
     int rows = *reinterpret_cast<int*>(taskData->inputs[2]);
@@ -119,7 +120,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
     }
 
     double pivot;
-    MPI_Bcast(&pivot, 1, MPI_DOUBLE, k % size, world);
+    MPI_Bcast(&pivot, 1, MPI_DOUBLE, k % size, MPI_COMM_WORLD);
 
     for (int i = rank; i < n; i += size) {
       if (i > k) {
@@ -138,7 +139,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationParallel::post_processing() {
   internal_order_test();
   if (world.rank() == 0) {
-    double* output_ptr = reinterpret_cast<double*>(taskData->outputs[0]);
+    auto* output_ptr = reinterpret_cast<double*>(taskData->outputs[0]);
     std::copy(result.begin(), result.end(), output_ptr);
   }
   return true;
