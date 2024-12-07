@@ -53,43 +53,49 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
   return true;  // Валидация пройдена
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalSequential::run() {
+bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalSequential::validation() {
   internal_order_test();
 
-  // Применяем метод Гаусса для последовательной обработки
-  size_t n = matrix.size();
+  // Проверка наличия taskData и корректности входных/выходных данных
+  if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.empty()) {
+    return false;  // Недостаточно входных или выходных данных
+  }
 
-  // Приведение матрицы к верхнетреугольному виду
-  for (size_t i = 0; i < n; i++) {
-    // Нормализация текущей строки
-    double pivot = matrix[i][i];
-    for (size_t j = i; j < n; j++) {
-      matrix[i][j] /= pivot;
-    }
-    vector_b[i] /= pivot;
+  // Проверка корректности матрицы и вектора
+  auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
+  auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
+  auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
 
-    // Обработка всех строк ниже текущей
-    for (size_t j = i + 1; j < n; j++) {
-      double factor = matrix[j][i];
-      for (size_t k = i; k < n; k++) {
-        matrix[j][k] -= factor * matrix[i][k];
-      }
-      vector_b[j] -= factor * vector_b[i];
+  if (input_matrix == nullptr || input_matrix->empty()) {
+    return false;  // Матрица отсутствует или пуста
+  }
+
+  size_t matrix_size = input_matrix->size();
+  
+  // Проверка, что матрица квадратная
+  for (const auto& row : *input_matrix) {
+    if (row.size() != matrix_size) {
+      return false;  // Матрица не квадратная
     }
   }
 
-  // Обратный ход (решение системы уравнений)
-  std::vector<double> solution(n, 0);
-  for (int i = n - 1; i >= 0; i--) {
-    solution[i] = vector_b[i];
-    for (size_t j = i + 1; j < n; j++) {
-      solution[i] -= matrix[i][j] * solution[j];
+  if (input_vector == nullptr || input_vector->size() != matrix_size) {
+    return false;  // Размер вектора должен совпадать с размером матрицы
+  }
+
+  if (output_vector == nullptr || output_vector->size() != matrix_size) {
+    return false;  // Размер выходного вектора должен совпадать с размером матрицы
+  }
+
+  // Проверка диагональных элементов матрицы
+  for (size_t i = 0; i < matrix_size; ++i) {
+    if ((*input_matrix)[i][i] == 0.0) {
+      std::cout << "Warning: Zero diagonal element at position (" << i << ", " << i << ")" << std::endl;
+      return false;  // Если диагональный элемент равен нулю, то валидация не пройдена
     }
   }
 
-  // Сохраняем решение в outputs
-  *reinterpret_cast<std::vector<double>*>(taskData->outputs[0]) = solution;
-  return true;
+  return true;  // Валидация пройдена
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalSequential::post_processing() {
@@ -110,12 +116,12 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel::validation() {
   internal_order_test();
 
-  // Проверка корректности taskData
+  // Проверка наличия taskData и корректности входных/выходных данных
   if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.empty()) {
-    return false;  // Недостаточно входных/выходных данных
+    return false;  // Недостаточно входных или выходных данных
   }
 
-  // Проверяем корректность матрицы на нулевом процессе
+  // Проверка корректности матрицы и вектора на процессе с рангом 0
   if (world.rank() == 0) {
     auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
     auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
@@ -126,9 +132,11 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
     }
 
     size_t matrix_size = input_matrix->size();
+    
+    // Проверка, что матрица квадратная
     for (const auto& row : *input_matrix) {
       if (row.size() != matrix_size) {
-        return false;  // Матрица должна быть квадратной
+        return false;  // Матрица не квадратная
       }
     }
 
@@ -138,6 +146,14 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
 
     if (output_vector == nullptr || output_vector->size() != matrix_size) {
       return false;  // Размер выходного вектора должен совпадать с размером матрицы
+    }
+
+    // Проверка диагональных элементов матрицы
+    for (size_t i = 0; i < matrix_size; ++i) {
+      if ((*input_matrix)[i][i] == 0.0) {
+        std::cout << "Warning: Zero diagonal element at position (" << i << ", " << i << ")" << std::endl;
+        return false;  // Если диагональный элемент равен нулю, то валидация не пройдена
+      }
     }
   }
 
@@ -153,6 +169,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
 
   return global_valid > 0;  // Если хотя бы один процесс обнаружил ошибку, метод вернёт false
 }
+
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel::run() {
   internal_order_test();
