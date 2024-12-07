@@ -15,7 +15,9 @@ TEST(GaussianElimination, test_sequential_simple_system) {
 
   std::vector<double> matA = {2.0, 1.0, 1.0, -1.0};  // Матрица коэффициентов (2x2)
   std::vector<double> vecB = {5.0, 1.0};             // Вектор правой части
-  int rows = 2, cols = 2;
+  int rows = 2;
+  int cols = 2;
+
 
   std::vector<double> result(2, 0.0);
 
@@ -49,7 +51,9 @@ TEST(GaussianElimination, test_parallel_simple_system) {
 
   std::vector<double> matA = {3.0, 1.0, 1.0, -1.0};  // Матрица коэффициентов (2x2)
   std::vector<double> vecB = {7.0, 1.0};             // Вектор правой части
-  int rows = 2, cols = 2;
+  int rows = 2;
+  int cols = 2;
+
 
   std::vector<double> result(2, 0.0);
 
@@ -138,7 +142,9 @@ TEST(GaussianElimination, test_empty_input) {
 
   std::vector<double> matA;  // Пустая матрица
   std::vector<double> vecB;  // Пустой вектор
-  int rows = 0, cols = 0;
+  int rows = 0;
+  int cols = 0;
+
   std::vector<double> result;
 
   auto taskDataSeq = std::make_shared<ppc::core::TaskData>();
@@ -164,7 +170,9 @@ TEST(GaussianElimination, test_non_square_matrix) {
 
   std::vector<double> matA = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};  // Матрица 2x3
   std::vector<double> vecB = {7.0, 8.0};
-  int rows = 2, cols = 3;
+  int rows = 2;
+  int cols = 3;
+
   std::vector<double> result;
 
   auto taskDataSeq = std::make_shared<ppc::core::TaskData>();
@@ -190,7 +198,9 @@ TEST(GaussianElimination, test_singular_matrix) {
 
   std::vector<double> matA = {1.0, 2.0, 2.0, 4.0};  // Матрица 2x2 с линейно зависимыми строками
   std::vector<double> vecB = {5.0, 10.0};           // Несогласованный вектор
-  int rows = 2, cols = 2;
+  int rows = 2;
+  int cols = 2;
+
   std::vector<double> result(2, 0.0);
 
   auto taskDataSeq = std::make_shared<ppc::core::TaskData>();
