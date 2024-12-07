@@ -18,7 +18,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHoriz
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::validation() {
+bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalSequential::validation() {
   internal_order_test();
 
   // Проверка наличия taskData и корректности входных/выходных данных
@@ -26,7 +26,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHoriz
     return false;  // Недостаточно входных или выходных данных
   }
 
-  // Проверка корректности матрицы и вектора
+  // Проверка корректности данных
   auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
   auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
   auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
@@ -35,19 +35,21 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHoriz
     return false;  // Матрица отсутствует или пуста
   }
 
-  size_t matrix_size = input_matrix->size();
-  
-  // Проверка, что матрица квадратная
+  size_t matrix_size = input_matrix->size();  // Количество строк матрицы (вектор векторов)
+
+  // Проверка, что все строки матрицы имеют одинаковую длину (матрица не рваная)
   for (const auto& row : *input_matrix) {
     if (row.size() != matrix_size) {
-      return false;  // Матрица не квадратная
+      return false;  // Матрица не квадратная, т.е. строки имеют разную длину
     }
   }
 
+  // Проверка размера вектора правой части
   if (input_vector == nullptr || input_vector->size() != matrix_size) {
     return false;  // Размер вектора должен совпадать с размером матрицы
   }
 
+  // Проверка размера выходного вектора
   if (output_vector == nullptr || output_vector->size() != matrix_size) {
     return false;  // Размер выходного вектора должен совпадать с размером матрицы
   }
@@ -60,7 +62,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHoriz
     }
   }
 
-  return true;  // Валидация пройдена
+  return true;  // Валидация пройдена успешно
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::run() {

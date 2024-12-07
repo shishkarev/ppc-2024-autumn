@@ -61,7 +61,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
     return false;  // Недостаточно входных или выходных данных
   }
 
-  // Проверка корректности матрицы и вектора
+  // Проверка корректности данных
   auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
   auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
   auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
@@ -70,19 +70,21 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
     return false;  // Матрица отсутствует или пуста
   }
 
-  size_t matrix_size = input_matrix->size();
-  
-  // Проверка, что матрица квадратная
+  size_t matrix_size = input_matrix->size();  // Количество строк матрицы (вектор векторов)
+
+  // Проверка, что все строки матрицы имеют одинаковую длину (матрица не рваная)
   for (const auto& row : *input_matrix) {
     if (row.size() != matrix_size) {
-      return false;  // Матрица не квадратная
+      return false;  // Матрица не квадратная, т.е. строки имеют разную длину
     }
   }
 
+  // Проверка размера вектора правой части
   if (input_vector == nullptr || input_vector->size() != matrix_size) {
     return false;  // Размер вектора должен совпадать с размером матрицы
   }
 
+  // Проверка размера выходного вектора
   if (output_vector == nullptr || output_vector->size() != matrix_size) {
     return false;  // Размер выходного вектора должен совпадать с размером матрицы
   }
@@ -95,7 +97,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
     }
   }
 
-  return true;  // Валидация пройдена
+  return true;  // Валидация пройдена успешно
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalSequential::post_processing() {
@@ -121,7 +123,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
     return false;  // Недостаточно входных или выходных данных
   }
 
-  // Проверка корректности матрицы и вектора на процессе с рангом 0
+  // Проверка корректности данных на процессе с рангом 0
   if (world.rank() == 0) {
     auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
     auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
@@ -131,12 +133,12 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
       return false;  // Матрица отсутствует или пуста
     }
 
-    size_t matrix_size = input_matrix->size();
-    
-    // Проверка, что матрица квадратная
+    size_t matrix_size = input_matrix->size();  // Количество строк матрицы (вектор векторов)
+
+    // Проверка, что все строки матрицы имеют одинаковую длину (матрица не рваная)
     for (const auto& row : *input_matrix) {
       if (row.size() != matrix_size) {
-        return false;  // Матрица не квадратная
+        return false;  // Матрица не квадратная, т.е. строки имеют разную длину
       }
     }
 
@@ -157,17 +159,26 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
     }
   }
 
-  // Убеждаемся, что все процессы согласованы
-  size_t local_valid = (world.rank() == 0) ? 1 : 0;  // Только процесс 0 выполняет проверки
-  size_t global_valid = 0;
+  // Шаг 1: Проверка корректности локальных данных на каждом процессе
+  size_t local_valid = 1;  // Предполагаем, что данные локально валидны
 
-  // MPI: Все процессы должны согласовать результат валидации
+  // Каждый процесс проверяет локальную часть данных
+  if (world.rank() != 0) {
+    auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
+    if (input_matrix == nullptr || input_matrix->empty()) {
+      local_valid = 0;  // Матрица пустая или некорректная
+    }
+  }
+
+  // Шаг 2: Синхронизация всех результатов
+  size_t global_valid = 0;
   boost::mpi::reduce(world, local_valid, global_valid, std::plus<>(), 0);
 
-  // Процесс 0 передаёт результат остальным
+  // Шаг 3: Процесс с рангом 0 передает результат всем остальным процессам
   boost::mpi::broadcast(world, global_valid, 0);
 
-  return global_valid > 0;  // Если хотя бы один процесс обнаружил ошибку, метод вернёт false
+  // Если хотя бы один процесс не прошел валидацию, возвращаем false
+  return global_valid > 0;
 }
 
 
