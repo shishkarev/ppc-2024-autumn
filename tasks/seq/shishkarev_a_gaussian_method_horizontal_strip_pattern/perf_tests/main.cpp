@@ -24,7 +24,9 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_pipeline_ru
     taskData->outputs_count.emplace_back(global_result.size());
   }
 
-  auto taskSequential = std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential>(taskData);
+  auto taskSequential =
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential>(
+          taskData);
   ASSERT_EQ(taskSequential->validation(), true);
 
   // Настройка производительности
@@ -67,7 +69,9 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_task_run) {
     taskData->outputs_count.emplace_back(global_result.size());
   }
 
-  auto taskSequential = std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential>(taskData);
+  auto taskSequential =
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential>(
+          taskData);
   ASSERT_EQ(taskSequential->validation(), true);
 
   // Настройка производительности

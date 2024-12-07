@@ -1,12 +1,14 @@
 #pragma once
 
 #include <gtest/gtest.h>
+
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <memory>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
+
 #include "core/task/include/task.hpp"
 
 namespace boost {
@@ -14,7 +16,7 @@ namespace serialization {
 
 template <typename Archive>
 void serialize(Archive &ar, std::vector<double> &v, const unsigned int version) {
-    ar & v;  // Сериализуем весь вектор
+  ar & v;  // Сериализуем весь вектор
 }
 
 }  // namespace serialization
@@ -24,7 +26,7 @@ namespace shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi {
 
 class MPIGaussianHorizontalSequential : public ppc::core::Task {
  public:
-  explicit MPIGaussianHorizontalSequential(std::shared_ptr<ppc::core::TaskData> taskData_) 
+  explicit MPIGaussianHorizontalSequential(std::shared_ptr<ppc::core::TaskData> taskData_)
       : Task(std::move(taskData_)) {}
 
   bool pre_processing() override;
@@ -39,8 +41,7 @@ class MPIGaussianHorizontalSequential : public ppc::core::Task {
 
 class MPIGaussianHorizontalParallel : public ppc::core::Task {
  public:
-  explicit MPIGaussianHorizontalParallel(std::shared_ptr<ppc::core::TaskData> taskData_) 
-      : Task(std::move(taskData_)) {}
+  explicit MPIGaussianHorizontalParallel(std::shared_ptr<ppc::core::TaskData> taskData_) : Task(std::move(taskData_)) {}
 
   bool pre_processing() override;
   bool validation() override;
