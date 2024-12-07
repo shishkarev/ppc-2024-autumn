@@ -18,7 +18,6 @@ TEST(GaussianElimination, test_sequential_simple_system) {
   int rows = 2;
   int cols = 2;
 
-
   std::vector<double> result(2, 0.0);
 
   auto taskDataSeq = std::make_shared<ppc::core::TaskData>();
@@ -53,7 +52,6 @@ TEST(GaussianElimination, test_parallel_simple_system) {
   std::vector<double> vecB = {7.0, 1.0};             // Вектор правой части
   int rows = 2;
   int cols = 2;
-
 
   std::vector<double> result(2, 0.0);
 
