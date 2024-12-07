@@ -2,8 +2,8 @@
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
@@ -18,12 +18,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-    input_matrix = {
-        2, 1, -1, -3,
-        -3, -1, 2, 4,
-        1, 2, 3, 0,
-        5, 4, 3, 2
-    };
+    input_matrix = {2, 1, -1, -3, -3, -1, 2, 4, 1, 2, 3, 0, 5, 4, 3, 2};
     input_vector = {-8, 13, 10, 5};
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_matrix.data()));
@@ -39,7 +34,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   }
 
   auto parallel_task =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationParallel>(taskDataPar);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationParallel>(
+          taskDataPar);
 
   ASSERT_TRUE(parallel_task->validation());
   parallel_task->pre_processing();
@@ -73,12 +69,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-    input_matrix = {
-        2, 1, -1, -3,
-        -3, -1, 2, 4,
-        1, 2, 3, 0,
-        5, 4, 3, 2
-    };
+    input_matrix = {2, 1, -1, -3, -3, -1, 2, 4, 1, 2, 3, 0, 5, 4, 3, 2};
     input_vector = {-8, 13, 10, 5};
 
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_matrix.data()));
@@ -94,7 +85,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
   }
 
   auto sequential_task =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential>(taskDataSeq);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential>(
+          taskDataSeq);
 
   ASSERT_TRUE(sequential_task->validation());
   sequential_task->pre_processing();

@@ -11,11 +11,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_int) {
   const int cols = 3;
   
   // Define input matrix and vector b
-  std::vector<int> input_matrix = {
-      2, 1, -1,
-      -3, -1, 2,
-      -2, 1, 2
-  };
+  std::vector<int> input_matrix = {2, 1, -1, -3, -1, 2, -2, 1, 2};
   std::vector<int> input_vector_b = {8, -11, -3};
   std::vector<int> output_data(rows, 0);  // Output vector for results
 
@@ -54,11 +50,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_float) {
   const int cols = 3;
 
   // Define input matrix and vector b
-  std::vector<float> input_matrix = {
-      2.f, 1.f, -1.f,
-      -3.f, -1.f, 2.f,
-      -2.f, 1.f, 2.f
-  };
+  std::vector<float> input_matrix = {2.f, 1.f, -1.f, -3.f, -1.f, 2.f, -2.f, 1.f, 2.f};
   std::vector<float> input_vector_b = {8.f, -11.f, -3.f};
   std::vector<float> output_data(rows, 0.f);  // Output vector for results
 
@@ -97,11 +89,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_double) {
   const int cols = 3;
 
   // Define input matrix and vector b
-  std::vector<double> input_matrix = {
-      2.0, 1.0, -1.0,
-      -3.0, -1.0, 2.0,
-      -2.0, 1.0, 2.0
-  };
+  std::vector<double> input_matrix = {2.0, 1.0, -1.0, -3.0, -1.0, 2.0, -2.0, 1.0, 2.0};
   std::vector<double> input_vector_b = {8.0, -11.0, -3.0};
   std::vector<double> output_data(rows, 0.0);  // Output vector for results
 
@@ -140,11 +128,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_int64_t) {
   const int cols = 3;
 
   // Define input matrix and vector b
-  std::vector<int64_t> input_matrix = {
-      2, 1, -1,
-      -3, -1, 2,
-      -2, 1, 2
-  };
+  std::vector<int64_t> input_matrix = {2, 1, -1, -3, -1, 2, -2, 1, 2};
   std::vector<int64_t> input_vector_b = {8, -11, -3};
   std::vector<int64_t> output_data(rows, 0);  // Output vector for results
 
@@ -183,11 +167,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_uint8_t) {
   const int cols = 3;
 
   // Define input matrix and vector b
-  std::vector<uint8_t> input_matrix = {
-      2, 1, 1,
-      3, 1, 2,
-      2, 2, 2
-  };
+  std::vector<uint8_t> input_matrix = {2, 1, 1, 3, 1, 2, 2, 2, 2};
   std::vector<uint8_t> input_vector_b = {6, 12, 10};
   std::vector<uint8_t> output_data(rows, 0);  // Output vector for results
 
@@ -219,4 +199,3 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_uint8_t) {
     EXPECT_EQ(output_data[i], expected_result[i]);
   }
 }
-

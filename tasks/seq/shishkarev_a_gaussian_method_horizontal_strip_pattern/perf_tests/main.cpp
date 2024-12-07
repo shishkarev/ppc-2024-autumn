@@ -11,13 +11,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_pipeline_ru
   const int cols = 5;
 
   // Создание данных для матрицы и вектора правых частей
-  std::vector<double> input_matrix = {
-      2.0, -1.0, 1.0, 3.0, 1.0,
-      1.0, 3.0, -1.0, 2.0, -2.0,
-      3.0, 1.0, 2.0, -1.0, 4.0,
-      2.0, 2.0, 3.0, 1.0, 5.0,
-      -1.0, -2.0, 1.0, 3.0, 1.0
-  };
+  std::vector<double> input_matrix = {2.0,  -1.0, 1.0, 3.0, 1.0, 1.0, 3.0, -1.0, 2.0,  -2.0, 3.0, 1.0, 2.0,
+                                      -1.0, 4.0,  2.0, 2.0, 3.0, 1.0, 5.0, -1.0, -2.0, 1.0,  3.0, 1.0};
   
   std::vector<double> input_vector_b = {5.0, 10.0, 8.0, 3.0, 7.0};
   std::vector<double> output_vector(5, 0.0);
@@ -37,7 +32,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_pipeline_ru
 
   // Создание задачи
   auto gaussianEliminationSequential =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::GaussianEliminationSequential>(taskDataSeq);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::GaussianEliminationSequential>(
+          taskDataSeq);
 
   // Создание Perf атрибутов
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
@@ -73,13 +69,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_task_run) {
   const int cols = 5;
 
   // Создание данных для матрицы и вектора правых частей
-  std::vector<double> input_matrix = {
-      2.0, -1.0, 1.0, 3.0, 1.0,
-      1.0, 3.0, -1.0, 2.0, -2.0,
-      3.0, 1.0, 2.0, -1.0, 4.0,
-      2.0, 2.0, 3.0, 1.0, 5.0,
-      -1.0, -2.0, 1.0, 3.0, 1.0
-  };
+  std::vector<double> input_matrix = {2.0,  -1.0, 1.0, 3.0, 1.0, 1.0, 3.0, -1.0, 2.0,  -2.0, 3.0, 1.0, 2.0,
+                                      -1.0, 4.0,  2.0, 2.0, 3.0, 1.0, 5.0, -1.0, -2.0, 1.0,  3.0, 1.0};
   
   std::vector<double> input_vector_b = {5.0, 10.0, 8.0, 3.0, 7.0};
   std::vector<double> output_vector(5, 0.0);
@@ -99,7 +90,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_task_run) {
 
   // Создание задачи
   auto gaussianEliminationSequential =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::GaussianEliminationSequential>(taskDataSeq);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::GaussianEliminationSequential>(
+          taskDataSeq);
 
   // Создание Perf атрибутов
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();

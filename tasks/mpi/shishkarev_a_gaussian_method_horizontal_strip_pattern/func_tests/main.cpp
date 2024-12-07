@@ -13,7 +13,7 @@ TEST(GaussianElimination, test_sequential_simple_system) {
   boost::mpi::environment env;
 
   std::vector<double> matA = {2.0, 1.0, 1.0, -1.0};  // Матрица коэффициентов (2x2)
-  std::vector<double> vecB = {5.0, 1.0};            // Вектор правой части
+  std::vector<double> vecB = {5.0, 1.0};             // Вектор правой части
   int rows = 2, cols = 2;
 
   std::vector<double> result(2, 0.0);
@@ -47,7 +47,7 @@ TEST(GaussianElimination, test_parallel_simple_system) {
   boost::mpi::communicator world;
 
   std::vector<double> matA = {3.0, 1.0, 1.0, -1.0};  // Матрица коэффициентов (2x2)
-  std::vector<double> vecB = {7.0, 1.0};            // Вектор правой части
+  std::vector<double> vecB = {7.0, 1.0};             // Вектор правой части
   int rows = 2, cols = 2;
 
   std::vector<double> result(2, 0.0);
@@ -223,9 +223,9 @@ TEST(GaussianElimination, test_large_sparse_matrix) {
 
   if (world.rank() == 0) {
     for (int i = 0; i < n; ++i) {
-      matA[i * n + i] = 10.0;  // Диагональные элементы
+      matA[i * n + i] = 10.0;                    // Диагональные элементы
       if (i < n - 1) matA[i * n + i + 1] = 1.0;  // Соседние элементы
-      vecB[i] = 11.0;  // Обеспечивает решение x[i] = 1
+      vecB[i] = 11.0;                            // Обеспечивает решение x[i] = 1
     }
   }
 

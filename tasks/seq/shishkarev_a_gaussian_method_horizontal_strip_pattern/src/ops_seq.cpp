@@ -40,7 +40,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::GaussianEliminat
   // Прямой ход
   for (int k = 0; k < n; ++k) {
     double pivot = matA(k, k);
-    if (std::abs(pivot) < 1e-9) return false; // Матрица вырождена
+    if (std::abs(pivot) < 1e-9) return false;  // Матрица вырождена
     for (int j = k; j < n; ++j) matA(k, j) /= pivot;
     vecB[k] /= pivot;
 
