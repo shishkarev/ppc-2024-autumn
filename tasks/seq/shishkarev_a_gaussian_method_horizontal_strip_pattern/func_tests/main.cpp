@@ -9,7 +9,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_int) {
   // Create input data
   const int rows = 3;
   const int cols = 3;
-  
+
   // Define input matrix and vector b
   std::vector<int> input_matrix = {2, 1, -1, -3, -1, 2, -2, 1, 2};
   std::vector<int> input_vector_b = {8, -11, -3};
