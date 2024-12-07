@@ -19,14 +19,19 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::validation() {
-  // Проверяем корректность входных и выходных данных
-  if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.size() < 1) {
-    return false;  // Недостаточно данных
+  internal_order_test();
+
+  // Проверяем наличие taskData и его содержимое
+  if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.empty()) {
+    return false;  // Недостаточно входных или выходных данных
   }
 
   // Проверяем корректность матрицы
   auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
-  if (!input_matrix || input_matrix->empty()) {
+  auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
+  auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
+
+  if (input_matrix == nullptr || input_matrix->empty()) {
     return false;  // Матрица отсутствует или пуста
   }
 
@@ -37,19 +42,15 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHoriz
     }
   }
 
-  // Проверяем корректность вектора
-  auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
-  if (!input_vector || input_vector->size() != matrix_size) {
+  if (input_vector == nullptr || input_vector->size() != matrix_size) {
     return false;  // Размер вектора должен совпадать с размером матрицы
   }
 
-  // Проверяем корректность выходного вектора
-  auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
-  if (!output_vector || output_vector->size() != matrix_size) {
+  if (output_vector == nullptr || output_vector->size() != matrix_size) {
     return false;  // Размер выходного вектора должен совпадать с размером матрицы
   }
 
-  return true;  // Все проверки пройдены
+  return true;  // Валидация пройдена
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalSequential::run() {
@@ -110,7 +111,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
   internal_order_test();
 
   // Проверка корректности taskData
-  if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.size() < 1) {
+  if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.empty()) {
     return false;  // Недостаточно входных/выходных данных
   }
 
@@ -120,7 +121,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
     auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
     auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
 
-    if (!input_matrix || input_matrix->empty()) {
+    if (input_matrix == nullptr || input_matrix->empty()) {
       return false;  // Матрица отсутствует или пуста
     }
 
@@ -131,21 +132,21 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
       }
     }
 
-    if (!input_vector || input_vector->size() != matrix_size) {
+    if (input_vector == nullptr || input_vector->size() != matrix_size) {
       return false;  // Размер вектора должен совпадать с размером матрицы
     }
 
-    if (!output_vector || output_vector->size() != matrix_size) {
+    if (output_vector == nullptr || output_vector->size() != matrix_size) {
       return false;  // Размер выходного вектора должен совпадать с размером матрицы
     }
   }
 
   // Убеждаемся, что все процессы согласованы
-  size_t local_valid = (world.rank() == 0 ? 1 : 0);  // Только процесс 0 выполняет проверки
+  size_t local_valid = (world.rank() == 0) ? 1 : 0;  // Только процесс 0 выполняет проверки
   size_t global_valid = 0;
 
   // MPI: Все процессы должны согласовать результат валидации
-  boost::mpi::reduce(world, local_valid, global_valid, std::plus<size_t>(), 0);
+  boost::mpi::reduce(world, local_valid, global_valid, std::plus<>(), 0);
 
   // Процесс 0 передаёт результат остальным
   boost::mpi::broadcast(world, global_valid, 0);

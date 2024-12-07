@@ -19,14 +19,19 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHoriz
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::validation() {
-  // Проверяем корректность входных и выходных данных
-  if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.size() < 1) {
-    return false;  // Недостаточно данных
+  internal_order_test();
+
+  // Проверяем наличие taskData и его содержимое
+  if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.empty()) {
+    return false;  // Недостаточно входных или выходных данных
   }
 
   // Проверяем корректность матрицы
   auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
-  if (!input_matrix || input_matrix->empty()) {
+  auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
+  auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
+
+  if (input_matrix == nullptr || input_matrix->empty()) {
     return false;  // Матрица отсутствует или пуста
   }
 
@@ -37,19 +42,15 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHoriz
     }
   }
 
-  // Проверяем корректность вектора
-  auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
-  if (!input_vector || input_vector->size() != matrix_size) {
+  if (input_vector == nullptr || input_vector->size() != matrix_size) {
     return false;  // Размер вектора должен совпадать с размером матрицы
   }
 
-  // Проверяем корректность выходного вектора
-  auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
-  if (!output_vector || output_vector->size() != matrix_size) {
+  if (output_vector == nullptr || output_vector->size() != matrix_size) {
     return false;  // Размер выходного вектора должен совпадать с размером матрицы
   }
 
-  return true;  // Все проверки пройдены
+  return true;  // Валидация пройдена
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::run() {
