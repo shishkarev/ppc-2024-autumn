@@ -18,7 +18,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::validation() {
+bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalSequential::validation() {
   internal_order_test();
 
   // Проверяем наличие taskData и его содержимое
