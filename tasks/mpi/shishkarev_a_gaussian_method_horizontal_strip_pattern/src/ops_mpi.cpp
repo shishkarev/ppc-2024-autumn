@@ -7,16 +7,20 @@
 #include <numeric>
 #include <vector>
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential::pre_processing() {
+namespace shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi {
+
+namespace mpi = boost::mpi;
+
+bool GaussianEliminationSequential::pre_processing() {
   internal_order_test();
 
   // Извлечение входных данных
+  auto* matrix_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
   std::vector<double> input_matrix(taskData->inputs_count[0]);
-  double* matrix_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
   std::copy(matrix_ptr, matrix_ptr + input_matrix.size(), input_matrix.begin());
 
+  auto* vector_b_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
   std::vector<double> input_vector_b(taskData->inputs_count[1]);
-  double* vector_b_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
   std::copy(vector_b_ptr, vector_b_ptr + input_vector_b.size(), input_vector_b.begin());
 
   int rows = *reinterpret_cast<int*>(taskData->inputs[2]);
@@ -28,12 +32,12 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential::validation() {
+bool GaussianEliminationSequential::validation() {
   internal_order_test();
   return matA.rows == matA.cols && matA.rows == static_cast<int>(vecB.size());
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential::run() {
+bool GaussianEliminationSequential::run() {
   internal_order_test();
 
   int n = matA.rows;
@@ -61,24 +65,24 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential::post_processing() {
+bool GaussianEliminationSequential::post_processing() {
   internal_order_test();
-  double* output_ptr = reinterpret_cast<double*>(taskData->outputs[0]);
+  auto* output_ptr = reinterpret_cast<double*>(taskData->outputs[0]);
   std::copy(result.begin(), result.end(), output_ptr);
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationParallel::pre_processing() {
+bool GaussianEliminationParallel::pre_processing() {
   internal_order_test();
 
   if (world.rank() == 0) {
     // Инициализация входных данных
+    auto* matrix_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
     std::vector<double> input_matrix(taskData->inputs_count[0]);
-    double* matrix_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
     std::copy(matrix_ptr, matrix_ptr + input_matrix.size(), input_matrix.begin());
 
+    auto* vector_b_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
     std::vector<double> input_vector_b(taskData->inputs_count[1]);
-    double* vector_b_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
     std::copy(vector_b_ptr, vector_b_ptr + input_vector_b.size(), input_vector_b.begin());
 
     int rows = *reinterpret_cast<int*>(taskData->inputs[2]);
@@ -92,7 +96,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationParallel::validation() {
+bool GaussianEliminationParallel::validation() {
   internal_order_test();
   if (world.rank() == 0) {
     return matA.rows == matA.cols && matA.rows == static_cast<int>(vecB.size());
@@ -100,7 +104,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationParallel::run() {
+bool GaussianEliminationParallel::run() {
   internal_order_test();
 
   int rows;
@@ -124,7 +128,7 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
   }
 
   // Передаем данные матрицы и вектора B между процессами
-  mpi::broadcast(world, matA.get_data(), matA.size(), 0);
+  mpi::broadcast(world, matA.data(), matA.size(), 0);  // Correct method to access data
   mpi::broadcast(world, vecB, 0);
 
   int n = matA.rows;
@@ -173,11 +177,13 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminat
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationParallel::post_processing() {
+bool GaussianEliminationParallel::post_processing() {
   internal_order_test();
   if (world.rank() == 0) {
-    double* output_ptr = reinterpret_cast<double*>(taskData->outputs[0]);
+    auto* output_ptr = reinterpret_cast<double*>(taskData->outputs[0]);
     std::copy(result.begin(), result.end(), output_ptr);
   }
   return true;
 }
+
+}  // namespace shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi
