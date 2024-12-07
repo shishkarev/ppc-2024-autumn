@@ -26,31 +26,34 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHoriz
     return false;  // Недостаточно входных или выходных данных
   }
 
-  // Проверяем корректность матрицы
+  // Приводим входные данные к нужным типам с дополнительной проверкой на null
   auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
   auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
   auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
 
-  if (input_matrix == nullptr || input_matrix->empty()) {
-    return false;  // Матрица отсутствует или пуста
+  // Проверяем, что указатели на данные не равны null
+  if (!input_matrix || !input_vector || !output_vector) {
+    return false;  // Одно из входных или выходных данных отсутствует
   }
 
+  // Проверяем, что матрица не пуста и является квадратной
   size_t matrix_size = input_matrix->size();
+  if (matrix_size == 0) {
+    return false;  // Матрица пуста
+  }
   for (const auto& row : *input_matrix) {
     if (row.size() != matrix_size) {
-      return false;  // Матрица должна быть квадратной
+      return false;  // Матрица не квадратная
     }
   }
 
-  if (input_vector == nullptr || input_vector->size() != matrix_size) {
-    return false;  // Размер вектора должен совпадать с размером матрицы
+  // Проверяем размерность входного вектора и выходного вектора
+  if (input_vector->size() != matrix_size || output_vector->size() != matrix_size) {
+    return false;  // Размер вектора не совпадает с размерностью матрицы
   }
 
-  if (output_vector == nullptr || output_vector->size() != matrix_size) {
-    return false;  // Размер выходного вектора должен совпадать с размером матрицы
-  }
-
-  return true;  // Валидация пройдена
+  // Валидация пройдена
+  return true;
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::run() {
