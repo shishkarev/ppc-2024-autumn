@@ -4,6 +4,7 @@
 #include <boost/mpi/environment.hpp>
 #include <random>
 #include <vector>
+#include <chrono>
 
 #include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
 
@@ -64,8 +65,16 @@ TEST(Parallel_Operations_MPI, Test_2x2) {
       taskDataPar);
   ASSERT_EQ(testMpiTaskParallel.validation(), true);
   testMpiTaskParallel.pre_processing();
+
+  // Используем std::chrono для замера времени
+  auto start_time = std::chrono::high_resolution_clock::now();
   testMpiTaskParallel.run();
   testMpiTaskParallel.post_processing();
+  auto end_time = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed_time = end_time - start_time;
+  if (world.rank() == 0) {
+    std::cout << "Elapsed time for Test_2x2: " << elapsed_time.count() << " seconds." << std::endl;
+  }
 
   if (world.rank() == 0) {
     // Create data for sequential processing and compare results
@@ -110,8 +119,16 @@ TEST(Parallel_Operations_MPI, Test_5x5) {
       taskDataPar);
   ASSERT_EQ(testMpiTaskParallel.validation(), true);
   testMpiTaskParallel.pre_processing();
+
+  // Используем std::chrono для замера времени
+  auto start_time = std::chrono::high_resolution_clock::now();
   testMpiTaskParallel.run();
   testMpiTaskParallel.post_processing();
+  auto end_time = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed_time = end_time - start_time;
+  if (world.rank() == 0) {
+    std::cout << "Elapsed time for Test_5x5: " << elapsed_time.count() << " seconds." << std::endl;
+  }
 
   if (world.rank() == 0) {
     std::vector<double> reference_data(size, 0.0);

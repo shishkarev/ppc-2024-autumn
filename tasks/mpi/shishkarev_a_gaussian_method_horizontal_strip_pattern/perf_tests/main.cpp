@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/timer.hpp>
 #include <memory>
 #include <vector>
+#include <chrono>
 
 #include "core/perf/include/perf.hpp"
 #include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
@@ -27,15 +27,20 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   }
 
   auto taskParallel =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(
-          taskData);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(taskData);
   ASSERT_EQ(taskParallel->validation(), true);
 
   // Настройка производительности
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
   perfAttr->num_running = 10;
-  const boost::mpi::timer current_timer;
-  perfAttr->current_timer = [&] { return current_timer.elapsed(); };
+
+  // Используем std::chrono для измерения времени
+  auto start_time = std::chrono::high_resolution_clock::now();
+  perfAttr->current_timer = [&] {
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end_time - start_time;
+    return elapsed.count();
+  };
 
   auto perfResults = std::make_shared<ppc::core::PerfResults>();
 
@@ -72,15 +77,20 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
   }
 
   auto taskParallel =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(
-          taskData);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(taskData);
   ASSERT_EQ(taskParallel->validation(), true);
 
   // Настройка производительности
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
   perfAttr->num_running = 10;
-  const boost::mpi::timer current_timer;
-  perfAttr->current_timer = [&] { return current_timer.elapsed(); };
+
+  // Используем std::chrono для измерения времени
+  auto start_time = std::chrono::high_resolution_clock::now();
+  perfAttr->current_timer = [&] {
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end_time - start_time;
+    return elapsed.count();
+  };
 
   auto perfResults = std::make_shared<ppc::core::PerfResults>();
 
