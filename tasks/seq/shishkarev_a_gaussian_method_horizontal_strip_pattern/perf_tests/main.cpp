@@ -5,9 +5,9 @@
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
-#include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
+#include "seq/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_seq.hpp"
 
-TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_run) {
+TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_pipeline_run) {
   // Подготовка входных данных
   std::vector<std::vector<double>> input_matrix{{2, -1, 0}, {-1, 2, -1}, {0, -1, 2}};
   std::vector<double> input_vector{1, 0, 1};
@@ -22,10 +22,10 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   taskData->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_result.data()));
   taskData->outputs_count.emplace_back(global_result.size());
 
-  auto taskParallel =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(
+  auto taskSequential =
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential>(
           taskData);
-  ASSERT_EQ(taskParallel->validation(), true);
+  ASSERT_EQ(taskSequential->validation(), true);
 
   // Настройка производительности
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
@@ -42,7 +42,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   auto perfResults = std::make_shared<ppc::core::PerfResults>();
 
   // Запуск через pipeline_run
-  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(taskParallel);
+  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(taskSequential);
   perfAnalyzer->pipeline_run(perfAttr, perfResults);
 
   // Ожидаемый результат
@@ -53,7 +53,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   ASSERT_NEAR(global_result[2], expected_result[2], 1e-6);
 }
 
-TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
+TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_task_run) {
   // Подготовка входных данных
   std::vector<std::vector<double>> input_matrix{{2, -1, 0}, {-1, 2, -1}, {0, -1, 2}};
   std::vector<double> input_vector{1, 0, 1};
@@ -68,10 +68,10 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
   taskData->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_result.data()));
   taskData->outputs_count.emplace_back(global_result.size());
 
-  auto taskParallel =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(
+  auto taskSequential =
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential>(
           taskData);
-  ASSERT_EQ(taskParallel->validation(), true);
+  ASSERT_EQ(taskSequential->validation(), true);
 
   // Настройка производительности
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
@@ -88,7 +88,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
   auto perfResults = std::make_shared<ppc::core::PerfResults>();
 
   // Запуск через task_run
-  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(taskParallel);
+  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(taskSequential);
   perfAnalyzer->task_run(perfAttr, perfResults);
 
   // Ожидаемый результат
