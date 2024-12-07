@@ -2,10 +2,10 @@
 #include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
 
 #include <algorithm>
+#include <boost/mpi.hpp>
 #include <cmath>
 #include <numeric>
 #include <vector>
-#include <boost/mpi.hpp>
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::GaussianEliminationSequential::pre_processing() {
   internal_order_test();
