@@ -2,10 +2,10 @@
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
-#include <memory>
-#include <vector>
 #include <chrono>
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
 
@@ -48,8 +48,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
 
   auto end_time = std::chrono::high_resolution_clock::now();
   if (world.rank() == 0) {
-    std::cout << "Pipeline execution time: "
-              << std::chrono::duration<double>(end_time - start_time).count() << " seconds" << std::endl;
+    std::cout << "Pipeline execution time: " << std::chrono::duration<double>(end_time - start_time).count()
+              << " seconds" << std::endl;
   }
 
   parallel_task->post_processing();
@@ -99,8 +99,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
 
   auto end_time = std::chrono::high_resolution_clock::now();
   if (world.rank() == 0) {
-    std::cout << "Task execution time: "
-              << std::chrono::duration<double>(end_time - start_time).count() << " seconds" << std::endl;
+    std::cout << "Task execution time: " << std::chrono::duration<double>(end_time - start_time).count() << " seconds"
+              << std::endl;
   }
 
   sequential_task->post_processing();
