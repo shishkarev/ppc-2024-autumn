@@ -157,7 +157,7 @@ bool GaussianEliminationParallel::run() {
     }
 
     result[k / size] = result_value;
-    
+
     // Синхронизация результатов между процессами
     mpi::broadcast(world, result_value, 0);
     for (int i = rank; i < n; i += size) {
