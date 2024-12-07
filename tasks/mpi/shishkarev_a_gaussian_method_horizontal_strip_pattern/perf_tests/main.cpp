@@ -78,7 +78,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
   }
 
   auto taskParallel =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(taskData);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(
+          taskData);
   ASSERT_EQ(taskParallel->validation(), true);
 
   // Настройка производительности

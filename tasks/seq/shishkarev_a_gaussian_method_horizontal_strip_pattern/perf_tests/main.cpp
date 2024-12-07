@@ -8,7 +8,6 @@
 #include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
 
 TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_run) {
-
   // Подготовка входных данных
   std::vector<std::vector<double>> input_matrix{{2, -1, 0}, {-1, 2, -1}, {0, -1, 2}};
   std::vector<double> input_vector{1, 0, 1};
@@ -52,11 +51,9 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   ASSERT_NEAR(global_result[0], expected_result[0], 1e-6);
   ASSERT_NEAR(global_result[1], expected_result[1], 1e-6);
   ASSERT_NEAR(global_result[2], expected_result[2], 1e-6);
-
 }
 
 TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
-
   // Подготовка входных данных
   std::vector<std::vector<double>> input_matrix{{2, -1, 0}, {-1, 2, -1}, {0, -1, 2}};
   std::vector<double> input_vector{1, 0, 1};
