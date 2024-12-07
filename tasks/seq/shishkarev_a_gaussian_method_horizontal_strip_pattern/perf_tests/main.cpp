@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
+
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/timer.hpp>
 #include <memory>
 #include <vector>
+
 #include "core/perf/include/perf.hpp"
 #include "seq/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_seq.hpp"
 
