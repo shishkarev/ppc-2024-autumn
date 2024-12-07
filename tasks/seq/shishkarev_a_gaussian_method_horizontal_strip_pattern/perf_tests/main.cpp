@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
+#include <chrono>
 #include <memory>
 #include <vector>
-#include <chrono>
 
 #include "core/perf/include/perf.hpp"
 #include "seq/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_seq.hpp"
@@ -37,7 +37,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_pipeline_ru
 
   // Использование chrono для замера времени
   auto start_time = std::chrono::high_resolution_clock::now();
-  perfAttr->current_timer = [&] { 
+  perfAttr->current_timer = [&] {
     auto end_time = std::chrono::high_resolution_clock::now();
     return std::chrono::duration<double>(end_time - start_time).count();
   };
@@ -87,7 +87,7 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_task_run) {
 
   // Использование chrono для замера времени
   auto start_time = std::chrono::high_resolution_clock::now();
-  perfAttr->current_timer = [&] { 
+  perfAttr->current_timer = [&] {
     auto end_time = std::chrono::high_resolution_clock::now();
     return std::chrono::duration<double>(end_time - start_time).count();
   };

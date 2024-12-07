@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
+#include <chrono>
 #include <memory>
 #include <vector>
-#include <chrono>
 
 #include "core/perf/include/perf.hpp"
 #include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
@@ -27,7 +27,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   }
 
   auto taskParallel =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(taskData);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(
+          taskData);
   ASSERT_EQ(taskParallel->validation(), true);
 
   // Настройка производительности
@@ -77,7 +78,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
   }
 
   auto taskParallel =
-      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(taskData);
+      std::make_shared<shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel>(
+          taskData);
   ASSERT_EQ(taskParallel->validation(), true);
 
   // Настройка производительности

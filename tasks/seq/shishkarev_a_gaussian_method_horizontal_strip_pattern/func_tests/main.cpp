@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
+#include <chrono> // Include for timing
 #include <random>
 #include <vector>
-#include <chrono> // Include for timing
 
 #include "seq/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_seq.hpp"
 
@@ -69,7 +69,7 @@ TEST(Parallel_Operations_MPI, Test_2x2) {
   testMpiTaskParallel.run();
   testMpiTaskParallel.post_processing();
 
-  auto end_time = std::chrono::high_resolution_clock::now();  // End timing
+  auto end_time = std::chrono::high_resolution_clock::now();           // End timing
   std::chrono::duration<double> elapsed_time = end_time - start_time;  // Calculate elapsed time
   if (world.rank() == 0) {
     std::cout << "Test 2x2 elapsed time: " << elapsed_time.count() << " seconds" << std::endl;
@@ -122,7 +122,7 @@ TEST(Parallel_Operations_MPI, Test_5x5) {
   testMpiTaskParallel.run();
   testMpiTaskParallel.post_processing();
 
-  auto end_time = std::chrono::high_resolution_clock::now();  // End timing
+  auto end_time = std::chrono::high_resolution_clock::now();           // End timing
   std::chrono::duration<double> elapsed_time = end_time - start_time;  // Calculate elapsed time
   if (world.rank() == 0) {
     std::cout << "Test 5x5 elapsed time: " << elapsed_time.count() << " seconds" << std::endl;
