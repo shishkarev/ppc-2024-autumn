@@ -4,8 +4,9 @@
 #include <boost/mpi/communicator.hpp>
 #include <memory>
 #include <vector>
+#include <chrono>
+#include <iostream>
 
-#include "core/perf/include/perf.hpp"
 #include "mpi/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_mpi.hpp"
 
 TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_run) {
@@ -21,15 +22,15 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
     input_matrix = {2, 1, -1, -3, -3, -1, 2, 4, 1, 2, 3, 0, 5, 4, 3, 2};
     input_vector = {-8, 13, 10, 5};
 
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_matrix.data()));
+    taskDataPar->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(input_matrix.data())));
     taskDataPar->inputs_count.emplace_back(input_matrix.size());
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_vector.data()));
+    taskDataPar->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(input_vector.data())));
     taskDataPar->inputs_count.emplace_back(input_vector.size());
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix_size));
+    taskDataPar->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(&matrix_size)));
     taskDataPar->inputs_count.emplace_back(1);
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix_size));
+    taskDataPar->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(&matrix_size)));
     taskDataPar->inputs_count.emplace_back(1);
-    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(result.data()));
+    taskDataPar->outputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(result.data())));
     taskDataPar->outputs_count.emplace_back(result.size());
   }
 
@@ -41,14 +42,14 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_pipeline_ru
   parallel_task->pre_processing();
 
   // Измерение производительности
-  ppc::perf::Timer timer;
-  timer.start();
+  auto start_time = std::chrono::high_resolution_clock::now();
 
   parallel_task->run();
 
-  timer.stop();
+  auto end_time = std::chrono::high_resolution_clock::now();
   if (world.rank() == 0) {
-    std::cout << "Pipeline execution time: " << timer.elapsed() << " seconds" << std::endl;
+    std::cout << "Pipeline execution time: "
+              << std::chrono::duration<double>(end_time - start_time).count() << " seconds" << std::endl;
   }
 
   parallel_task->post_processing();
@@ -72,15 +73,15 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
     input_matrix = {2, 1, -1, -3, -3, -1, 2, 4, 1, 2, 3, 0, 5, 4, 3, 2};
     input_vector = {-8, 13, 10, 5};
 
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_matrix.data()));
+    taskDataSeq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(input_matrix.data())));
     taskDataSeq->inputs_count.emplace_back(input_matrix.size());
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_vector.data()));
+    taskDataSeq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(input_vector.data())));
     taskDataSeq->inputs_count.emplace_back(input_vector.size());
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix_size));
+    taskDataSeq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(&matrix_size)));
     taskDataSeq->inputs_count.emplace_back(1);
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix_size));
+    taskDataSeq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(&matrix_size)));
     taskDataSeq->inputs_count.emplace_back(1);
-    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(result.data()));
+    taskDataSeq->outputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(result.data())));
     taskDataSeq->outputs_count.emplace_back(result.size());
   }
 
@@ -92,14 +93,14 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_task_run) {
   sequential_task->pre_processing();
 
   // Измерение производительности
-  ppc::perf::Timer timer;
-  timer.start();
+  auto start_time = std::chrono::high_resolution_clock::now();
 
   sequential_task->run();
 
-  timer.stop();
+  auto end_time = std::chrono::high_resolution_clock::now();
   if (world.rank() == 0) {
-    std::cout << "Task execution time: " << timer.elapsed() << " seconds" << std::endl;
+    std::cout << "Task execution time: "
+              << std::chrono::duration<double>(end_time - start_time).count() << " seconds" << std::endl;
   }
 
   sequential_task->post_processing();
