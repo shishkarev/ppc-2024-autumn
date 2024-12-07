@@ -1,15 +1,14 @@
 #include <gtest/gtest.h>
-
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
 #include <random>
 #include <vector>
+#include <chrono> // Include for timing
 
 #include "seq/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_seq.hpp"
 
 namespace shishkarev_a_gaussian_method_horizontal_strip_pattern_seq {
 
-// Генерация инвертируемой матрицы для тестов
 std::vector<std::vector<double>> generate_invertible_matrix(int size) {
   std::vector<std::vector<double>> matrix(size, std::vector<double>(size, 0.0));
   std::random_device rd;
@@ -27,7 +26,6 @@ std::vector<std::vector<double>> generate_invertible_matrix(int size) {
   return matrix;
 }
 
-// Генерация вектора b
 std::vector<double> generate_vector_b(int size) {
   std::vector<double> vector_b(size, 0.0);
   std::random_device rd;
@@ -62,12 +60,20 @@ TEST(Parallel_Operations_MPI, Test_2x2) {
     taskDataPar->outputs_count.emplace_back(output_data.size());
   }
 
+  auto start_time = std::chrono::high_resolution_clock::now();  // Start timing
+
   shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential testMpiTaskParallel(
       taskDataPar);
   ASSERT_EQ(testMpiTaskParallel.validation(), true);
   testMpiTaskParallel.pre_processing();
   testMpiTaskParallel.run();
   testMpiTaskParallel.post_processing();
+
+  auto end_time = std::chrono::high_resolution_clock::now();  // End timing
+  std::chrono::duration<double> elapsed_time = end_time - start_time;  // Calculate elapsed time
+  if (world.rank() == 0) {
+    std::cout << "Test 2x2 elapsed time: " << elapsed_time.count() << " seconds" << std::endl;
+  }
 
   if (world.rank() == 0) {
     std::vector<double> reference_data(size, 0.0);
@@ -107,12 +113,20 @@ TEST(Parallel_Operations_MPI, Test_5x5) {
     taskDataPar->outputs_count.emplace_back(output_data.size());
   }
 
+  auto start_time = std::chrono::high_resolution_clock::now();  // Start timing
+
   shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential testMpiTaskParallel(
       taskDataPar);
   ASSERT_EQ(testMpiTaskParallel.validation(), true);
   testMpiTaskParallel.pre_processing();
   testMpiTaskParallel.run();
   testMpiTaskParallel.post_processing();
+
+  auto end_time = std::chrono::high_resolution_clock::now();  // End timing
+  std::chrono::duration<double> elapsed_time = end_time - start_time;  // Calculate elapsed time
+  if (world.rank() == 0) {
+    std::cout << "Test 5x5 elapsed time: " << elapsed_time.count() << " seconds" << std::endl;
+  }
 
   if (world.rank() == 0) {
     std::vector<double> reference_data(size, 0.0);

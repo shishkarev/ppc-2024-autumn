@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/timer.hpp>
 #include <memory>
 #include <vector>
+#include <chrono>
 
 #include "core/perf/include/perf.hpp"
 #include "seq/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_seq.hpp"
@@ -34,8 +34,13 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_pipeline_ru
   // Настройка производительности
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
   perfAttr->num_running = 10;
-  const boost::mpi::timer current_timer;
-  perfAttr->current_timer = [&] { return current_timer.elapsed(); };
+
+  // Использование chrono для замера времени
+  auto start_time = std::chrono::high_resolution_clock::now();
+  perfAttr->current_timer = [&] { 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration<double>(end_time - start_time).count();
+  };
 
   auto perfResults = std::make_shared<ppc::core::PerfResults>();
 
@@ -79,8 +84,13 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_seq, test_task_run) {
   // Настройка производительности
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
   perfAttr->num_running = 10;
-  const boost::mpi::timer current_timer;
-  perfAttr->current_timer = [&] { return current_timer.elapsed(); };
+
+  // Использование chrono для замера времени
+  auto start_time = std::chrono::high_resolution_clock::now();
+  perfAttr->current_timer = [&] { 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration<double>(end_time - start_time).count();
+  };
 
   auto perfResults = std::make_shared<ppc::core::PerfResults>();
 
