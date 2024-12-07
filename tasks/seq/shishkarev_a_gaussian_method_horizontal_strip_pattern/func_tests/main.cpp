@@ -90,7 +90,8 @@ TEST(Sequential_Operations, Test_5x5) {
   taskDataSeq->outputs_count.emplace_back(output_data.size());
 
   // Создание объекта тестируемой задачи
-  shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential testTaskSequential(taskDataSeq);
+  shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential testTaskSequential(
+      taskDataSeq);
 
   // Проверка валидации
   ASSERT_TRUE(testTaskSequential.validation()) << "Validation failed for 5x5 test.";
@@ -104,7 +105,7 @@ TEST(Sequential_Operations, Test_5x5) {
   testTaskSequential.post_processing();
   auto end_time = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed_time = end_time - start_time;
-  
+
   // Вывод времени выполнения
   std::cout << "Elapsed time for Test_5x5: " << elapsed_time.count() << " seconds." << std::endl;
 
