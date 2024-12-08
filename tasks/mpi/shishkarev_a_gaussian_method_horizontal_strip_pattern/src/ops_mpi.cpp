@@ -181,7 +181,6 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHoriz
   return global_valid > 0;
 }
 
-
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalParallel::run() {
   internal_order_test();
 
