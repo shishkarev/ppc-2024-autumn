@@ -64,27 +64,26 @@ int shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::determinant(int n
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussHorizontalSequential::pre_processing() {
   internal_order_test();
-  // Init matrix
+
   matrix = std::vector<double>(taskData->inputs_count[0]);
   auto* tmp_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
   std::copy(tmp_ptr, tmp_ptr + taskData->inputs_count[0], matrix.begin());
   cols = taskData->inputs_count[1];
   rows = taskData->inputs_count[2];
-  // Init value for output
+
   res = std::vector<double>(cols - 1, 0);
   return true;
 }
 
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussHorizontalSequential::validation() {
   internal_order_test();
-  // Init matrix
+
   matrix = std::vector<double>(taskData->inputs_count[0]);
   auto* tmp_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
   std::copy(tmp_ptr, tmp_ptr + taskData->inputs_count[0], matrix.begin());
   cols = taskData->inputs_count[1];
   rows = taskData->inputs_count[2];
 
-  // Check matrix for a single solution
   return taskData->inputs_count[0] > 1 && rows == cols - 1 && determinant(cols, rows, matrix) != 0 &&
          matrix_rank(cols, rows, matrix) == rows;
 }

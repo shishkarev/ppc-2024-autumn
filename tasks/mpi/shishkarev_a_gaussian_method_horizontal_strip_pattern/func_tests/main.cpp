@@ -30,7 +30,6 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_empty_matri
 
   std::vector<double> global_matrix;
   std::vector<double> global_res;
-  // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
@@ -40,7 +39,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_empty_matri
     taskDataPar->inputs_count.emplace_back(rows);
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_res.data()));
     taskDataPar->outputs_count.emplace_back(global_res.size());
-    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(taskDataPar);
+    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(
+        taskDataPar);
     ASSERT_FALSE(MPIGaussHorizontalParallel.validation());
   }
 }
@@ -53,7 +53,6 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_matrix_with
 
   std::vector<double> global_matrix;
   std::vector<double> global_res;
-  // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
@@ -64,7 +63,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_matrix_with
     taskDataPar->inputs_count.emplace_back(rows);
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_res.data()));
     taskDataPar->outputs_count.emplace_back(global_res.size());
-    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(taskDataPar);
+    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(
+        taskDataPar);
     ASSERT_FALSE(MPIGaussHorizontalParallel.validation());
   }
 }
@@ -77,7 +77,6 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_not_square_
 
   std::vector<double> global_matrix;
   std::vector<double> global_res(cols - 1, 0);
-  // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
@@ -88,7 +87,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_not_square_
     taskDataPar->inputs_count.emplace_back(rows);
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_res.data()));
     taskDataPar->outputs_count.emplace_back(global_res.size());
-    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(taskDataPar);
+    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(
+        taskDataPar);
     ASSERT_FALSE(MPIGaussHorizontalParallel.validation());
   }
 }
@@ -101,7 +101,6 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_zero_determ
 
   std::vector<double> global_matrix;
   std::vector<double> global_res(cols - 1, 0);
-  // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
@@ -112,7 +111,8 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_zero_determ
     taskDataPar->inputs_count.emplace_back(rows);
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_res.data()));
     taskDataPar->outputs_count.emplace_back(global_res.size());
-    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(taskDataPar);
+    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(
+        taskDataPar);
     ASSERT_FALSE(MPIGaussHorizontalParallel.validation());
   }
 }
@@ -125,7 +125,6 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_101x100) {
 
   std::vector<double> global_matrix(cols * rows);
   std::vector<double> global_res(cols - 1, 0);
-  // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
@@ -138,34 +137,33 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_101x100) {
     taskDataPar->outputs_count.emplace_back(global_res.size());
   }
 
-  shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(taskDataPar);
+  shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(
+      taskDataPar);
   ASSERT_EQ(MPIGaussHorizontalParallel.validation(), true);
   MPIGaussHorizontalParallel.pre_processing();
   MPIGaussHorizontalParallel.run();
   MPIGaussHorizontalParallel.post_processing();
 
   if (world.rank() == 0) {
-    // Create data
-    std::vector<double> reference_ans(cols - 1, 0);
+    std::vector<double> reference_res(cols - 1, 0);
 
-    // Create TaskData
     std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_matrix.data()));
     taskDataSeq->inputs_count.emplace_back(global_matrix.size());
     taskDataSeq->inputs_count.emplace_back(cols);
     taskDataSeq->inputs_count.emplace_back(rows);
-    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_ans.data()));
-    taskDataSeq->outputs_count.emplace_back(reference_ans.size());
+    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_res.data()));
+    taskDataSeq->outputs_count.emplace_back(reference_res.size());
 
-    // Create Task
-    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalSequential MPIGaussHorizontalSequential(taskDataSeq);
+    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalSequential
+        MPIGaussHorizontalSequential(taskDataSeq);
     ASSERT_EQ(MPIGaussHorizontalSequential.validation(), true);
     MPIGaussHorizontalSequential.pre_processing();
     MPIGaussHorizontalSequential.run();
     MPIGaussHorizontalSequential.post_processing();
 
     for (int i = 0; i < cols - 1; ++i) {
-      ASSERT_NEAR(global_res[i], reference_ans[i], 1e-6);
+      ASSERT_NEAR(global_res[i], reference_res[i], 1e-6);
     }
   }
 }
@@ -178,7 +176,6 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_201x200) {
 
   std::vector<double> global_matrix(cols * rows);
   std::vector<double> global_res(cols - 1, 0);
-  // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
@@ -191,34 +188,33 @@ TEST(shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi, test_201x200) {
     taskDataPar->outputs_count.emplace_back(global_res.size());
   }
 
-  shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(taskDataPar);
+  shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel MPIGaussHorizontalParallel(
+      taskDataPar);
   ASSERT_EQ(MPIGaussHorizontalParallel.validation(), true);
   MPIGaussHorizontalParallel.pre_processing();
   MPIGaussHorizontalParallel.run();
   MPIGaussHorizontalParallel.post_processing();
 
   if (world.rank() == 0) {
-    // Create data
-    std::vector<double> reference_ans(cols - 1, 0);
+    std::vector<double> reference_res(cols - 1, 0);
 
-    // Create TaskData
     std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_matrix.data()));
     taskDataSeq->inputs_count.emplace_back(global_matrix.size());
     taskDataSeq->inputs_count.emplace_back(cols);
     taskDataSeq->inputs_count.emplace_back(rows);
-    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_ans.data()));
-    taskDataSeq->outputs_count.emplace_back(reference_ans.size());
+    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_res.data()));
+    taskDataSeq->outputs_count.emplace_back(reference_res.size());
 
-    // Create Task
-    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalSequential MPIGaussHorizontalSequential(taskDataSeq);
+    shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalSequential
+        MPIGaussHorizontalSequential(taskDataSeq);
     ASSERT_EQ(MPIGaussHorizontalSequential.validation(), true);
     MPIGaussHorizontalSequential.pre_processing();
     MPIGaussHorizontalSequential.run();
     MPIGaussHorizontalSequential.post_processing();
 
     for (int i = 0; i < cols - 1; ++i) {
-      ASSERT_NEAR(global_res[i], reference_ans[i], 1e-6);
+      ASSERT_NEAR(global_res[i], reference_res[i], 1e-6);
     }
   }
 }
