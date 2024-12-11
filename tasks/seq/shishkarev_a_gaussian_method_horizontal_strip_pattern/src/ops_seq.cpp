@@ -1,110 +1,117 @@
 #include "seq/shishkarev_a_gaussian_method_horizontal_strip_pattern/include/ops_seq.hpp"
 
-#include <algorithm>
-#include <boost/mpi.hpp>
-#include <functional>
-#include <random>
-#include <string>
 #include <thread>
-#include <vector>
 
 using namespace std::chrono_literals;
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::pre_processing() {
-  internal_order_test();
-  // Подготовка входных данных для последовательной обработки
-  matrix = *reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
-  vector_b = *reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
-  return true;
-}
+int shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::matrix_rank(int n, int m, std::vector<double> a) {
+  const double EPS = 1e-6;
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussianHorizontalSequential::validation() {
-  internal_order_test();
-
-  // Проверка наличия taskData и корректности входных/выходных данных
-  if (!taskData || taskData->inputs.size() < 2 || taskData->outputs.empty()) {
-    return false;  // Недостаточно входных или выходных данных
-  }
-
-  // Проверка корректности данных
-  auto* input_matrix = reinterpret_cast<std::vector<std::vector<double>>*>(taskData->inputs[0]);
-  auto* input_vector = reinterpret_cast<std::vector<double>*>(taskData->inputs[1]);
-  auto* output_vector = reinterpret_cast<std::vector<double>*>(taskData->outputs[0]);
-
-  if (input_matrix == nullptr || input_matrix->empty()) {
-    return false;  // Матрица отсутствует или пуста
-  }
-
-  size_t matrix_size = input_matrix->size();  // Количество строк матрицы (вектор векторов)
-
-  // Проверка, что все строки матрицы имеют одинаковую длину (матрица не рваная)
-  for (const auto& row : *input_matrix) {
-    if (row.size() != matrix_size) {
-      return false;  // Матрица не квадратная, т.е. строки имеют разную длину
-    }
-  }
-
-  // Проверка размера вектора правой части
-  if (input_vector == nullptr || input_vector->size() != matrix_size) {
-    return false;  // Размер вектора должен совпадать с размером матрицы
-  }
-
-  // Проверка размера выходного вектора
-  if (output_vector == nullptr || output_vector->size() != matrix_size) {
-    return false;  // Размер выходного вектора должен совпадать с размером матрицы
-  }
-
-  // Проверка диагональных элементов матрицы
-  for (size_t i = 0; i < matrix_size; ++i) {
-    if ((*input_matrix)[i][i] == 0.0) {
-      std::cout << "Warning: Zero diagonal element at position (" << i << ", " << i << ")" << std::endl;
-      return false;  // Если диагональный элемент равен нулю, то валидация не пройдена
-    }
-  }
-
-  return true;  // Валидация пройдена успешно
-}
-
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::run() {
-  internal_order_test();
-
-  // Применяем метод Гаусса для последовательной обработки
-  size_t n = matrix.size();
-
-  // Приведение матрицы к верхнетреугольному виду
-  for (size_t i = 0; i < n; i++) {
-    // Нормализация текущей строки
-    double pivot = matrix[i][i];
-    for (size_t j = i; j < n; j++) {
-      matrix[i][j] /= pivot;
-    }
-    vector_b[i] /= pivot;
-
-    // Обработка всех строк ниже текущей
-    for (size_t j = i + 1; j < n; j++) {
-      double factor = matrix[j][i];
-      for (size_t k = i; k < n; k++) {
-        matrix[j][k] -= factor * matrix[i][k];
+  int rank = m;
+  for (int i = 0; i < m; ++i) {
+    int j;
+    for (j = 0; j < n; ++j) {
+      if (std::abs(a[j * n + i]) > EPS) {
+        break;
       }
-      vector_b[j] -= factor * vector_b[i];
+    }
+    if (j == n) {
+      --rank;
+    } else {
+      for (int k = i + 1; k < m; ++k) {
+        double ml = a[k * n + i] / a[i * n + i];
+        for (j = i; j < n - 1; ++j) {
+          a[k * n + j] -= a[i * n + j] * ml;
+        }
+      }
     }
   }
+  return rank;
+}
 
-  // Обратный ход (решение системы уравнений)
-  std::vector<double> solution(n, 0);
-  for (int i = n - 1; i >= 0; i--) {
-    solution[i] = vector_b[i];
-    for (size_t j = i + 1; j < n; j++) {
-      solution[i] -= matrix[i][j] * solution[j];
+int shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::determinant(int n, int m, std::vector<double> a) {
+  const double EPS = 1e-6;
+  double det = 1;
+
+  for (int i = 0; i < m; ++i) {
+    int idx = i;
+    for (int k = i + 1; k < m; ++k) {
+      if (std::abs(a[k * n + i]) > std::abs(a[idx * n + i])) {
+        idx = k;
+      }
+    }
+    if (std::abs(a[idx * n + i]) < EPS) {
+      return 0;
+    }
+    if (idx != i) {
+      for (int j = 0; j < n - 1; ++j) {
+        double tmp = a[i * n + j];
+        a[i * n + j] = a[idx * n + j];
+        a[idx * n + j] = tmp;
+      }
+      det *= -1;
+    }
+    det *= a[i * n + i];
+    for (int k = i + 1; k < m; ++k) {
+      double ml = a[k * n + i] / a[i * n + i];
+      for (int j = i; j < n - 1; ++j) {
+        a[k * n + j] -= a[i * n + j] * ml;
+      }
     }
   }
+  return det;
+}
 
-  // Сохраняем решение в outputs
-  *reinterpret_cast<std::vector<double>*>(taskData->outputs[0]) = solution;
+bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussHorizontalSequential::pre_processing() {
+  internal_order_test();
+  // Init matrix
+  matrix = std::vector<double>(taskData->inputs_count[0]);
+  auto* tmp_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
+  std::copy(tmp_ptr, tmp_ptr + taskData->inputs_count[0], matrix.begin());
+  cols = taskData->inputs_count[1];
+  rows = taskData->inputs_count[2];
+  // Init value for output
+  res = std::vector<double>(cols - 1, 0);
   return true;
 }
 
-bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussianHorizontalSequential::post_processing() {
+bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussHorizontalSequential::validation() {
   internal_order_test();
+  // Init matrix
+  matrix = std::vector<double>(taskData->inputs_count[0]);
+  auto* tmp_ptr = reinterpret_cast<double*>(taskData->inputs[0]);
+  std::copy(tmp_ptr, tmp_ptr + taskData->inputs_count[0], matrix.begin());
+  cols = taskData->inputs_count[1];
+  rows = taskData->inputs_count[2];
+
+  // Check matrix for a single solution
+  return taskData->inputs_count[0] > 1 && rows == cols - 1 && determinant(cols, rows, matrix) != 0 &&
+         matrix_rank(cols, rows, matrix) == rows;
+}
+
+bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussHorizontalSequential::run() {
+  internal_order_test();
+  for (int i = 0; i < rows - 1; ++i) {
+    for (int k = i + 1; k < rows; ++k) {
+      double m = matrix[k * cols + i] / matrix[i * cols + i];
+      for (int j = i; j < cols; ++j) {
+        matrix[k * cols + j] -= matrix[i * cols + j] * m;
+      }
+    }
+  }
+  for (int i = rows - 1; i >= 0; --i) {
+    double sum = matrix[i * cols + rows];
+    for (int j = i + 1; j < cols - 1; ++j) {
+      sum -= matrix[i * cols + j] * res[j];
+    }
+    res[i] = sum / matrix[i * cols + i];
+  }
+  return true;
+}
+
+bool shishkarev_a_gaussian_method_horizontal_strip_pattern_seq::MPIGaussHorizontalSequential::post_processing() {
+  internal_order_test();
+  auto* this_matrix = reinterpret_cast<double*>(taskData->outputs[0]);
+  std::copy(res.begin(), res.end(), this_matrix);
   return true;
 }
