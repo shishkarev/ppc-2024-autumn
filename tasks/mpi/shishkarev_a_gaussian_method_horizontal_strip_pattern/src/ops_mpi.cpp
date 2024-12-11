@@ -119,7 +119,6 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizont
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel::pre_processing() {
   internal_order_test();
   if (world.rank() == 0) {
-
     matrix = std::vector<double>(taskData->inputs_count[0]);
     auto *tmp_ptr = reinterpret_cast<double *>(taskData->inputs[0]);
     std::copy(tmp_ptr, tmp_ptr + taskData->inputs_count[0], matrix.begin());
@@ -134,7 +133,6 @@ bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizont
 bool shishkarev_a_gaussian_method_horizontal_strip_pattern_mpi::MPIGaussHorizontalParallel::validation() {
   internal_order_test();
   if (world.rank() == 0) {
-
     matrix = std::vector<double>(taskData->inputs_count[0]);
     auto *tmp_ptr = reinterpret_cast<double *>(taskData->inputs[0]);
     std::copy(tmp_ptr, tmp_ptr + taskData->inputs_count[0], matrix.begin());
